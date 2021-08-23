@@ -1,6 +1,13 @@
-import { ingredientsUpdate } from '../../Shared/ingredientsUpdate.model';
-import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Output,
+  EventEmitter,
+  ViewChild,
+  ElementRef,
+} from '@angular/core';
 import { Ingredient } from 'src/app/Shared/ingredients.model';
+import { ShoppingListService } from '../shopping-list.service';
 
 @Component({
   selector: 'app-shopping-edit',
@@ -8,27 +15,28 @@ import { Ingredient } from 'src/app/Shared/ingredients.model';
   styleUrls: ['./shopping-edit.component.scss'],
 })
 export class ShoppingEditComponent implements OnInit {
+  @ViewChild('nameInput', { static: false }) nameInputRef: ElementRef;
+  @ViewChild('amountInput', { static: false }) amountInputRef: ElementRef;
+  @Output() emitButtonPressed = new EventEmitter<any>();
 
-  @ViewChild('nameInput',{static: false}) nameInputRef: ElementRef;
-  @ViewChild('amountInput',{static: false}) amountInputRef: ElementRef;
-  @Output() emitButtonPressed = new EventEmitter<ingredientsUpdate>();
-
-  constructor() {
-    this.nameInputRef = new ElementRef("");
+  constructor(private shoppingListService : ShoppingListService) {
+    this.nameInputRef = new ElementRef('');
     this.amountInputRef = new ElementRef(0);
   }
 
   ngOnInit(): void {}
 
-  onClick(action: string, name: string, amount: number) {
-    this.emitButtonPressed.emit(
-      new ingredientsUpdate(
-        action,
-        new Ingredient(
-            this.nameInputRef.nativeElement.value.charAt(0).toUpperCase()+
-            this.nameInputRef.nativeElement.value.slice(1),
-            this.amountInputRef.nativeElement.value)
-      )
+  onClick(action: string) {
+    const ingredient = new Ingredient(
+      this.nameInputRef.nativeElement.value.charAt(0).toUpperCase() +
+        this.nameInputRef.nativeElement.value.slice(1),
+      this.amountInputRef.nativeElement.value
     );
+      if(action==='add'){
+        this.shoppingListService.addIngredient(ingredient);
+      }
+      else if(action==='delete'){
+        this.shoppingListService.removeIngredient(ingredient)
+      }
   }
 }
